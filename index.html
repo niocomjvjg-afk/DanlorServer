@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danlorserver | Официальный магазин</title>
+    <style>
+        /* ==========================================================================
+           1. ПЕРЕМЕННЫЕ ТЕМ (тёмная по умолчанию + светлая переопределяется ниже)
+           ========================================================================== */
+        :root {
+            --bg: #02040a; --card-bg: rgba(10, 15, 30, 0.75); --border: rgba(59, 130, 246, 0.15);
+            --text: #f3f4f6; --text-secondary: #9ca3af; --input-bg: #060914; --input-border: #1e293b;
+            --btn-bg: linear-gradient(135deg, #1d4ed8, #1e40af); --btn-shadow: rgba(29, 78, 216, 0.35); --grid-color: rgba(59, 130, 246, 0.02);
+            --clr-champ: #84cc16; --clr-titan: #06b6d4; --clr-immortal: #a855f7; --clr-divine: #f59e0b;
+            --clr-heroic: #3b82f6; --clr-epic: #ec4899; --clr-mythic: #ef4444; --clr-legend: #e4eb16; --clr-youtuber: #ff0000;
+        }
+        body.light-theme {
+            --bg: #f8fafc; --card-bg: rgba(255, 255, 255, 0.95); --border: rgba(148, 163, 184, 0.4);
+            --text: #0f172a; --text-secondary: #64748b; --input-bg: #ffffff; --input-border: #cbd5e1;
+        }
+        /* ==========================================================================
+           2. БАЗОВЫЕ СТИЛИ И LAYOUT СТРАНИЦЫ
+           ========================================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.1s; }
+        body { background: var(--bg); background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px); background-size: 30px 30px; color: var(--text); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 20px; }
+        body.locked .shop-shell, body.locked .theme-toggle { filter: blur(15px); pointer-events: none; user-select: none; }
+        .theme-toggle { position: fixed; top: 20px; right: 20px; z-index: 100; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; border-radius: 30px; cursor: pointer; font-size: 13px; font-weight: 600; backdrop-filter: blur(10px); }
+        .shop-shell { position: relative; z-index: 10; width: 100%; max-width: 1200px; background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 24px; padding: 40px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); }
+        header { text-align: center; margin-bottom: 40px; }
+        header h1 { font-size: 38px; font-weight: 800; background: linear-gradient(135deg, var(--text) 40%, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .currency-panel { margin: 20px auto 0; max-width: 340px; text-align: center; }
+        .currency-panel label { display: block; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
+        .currency-select { width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: var(--text); font-size: 14px; font-weight: 600; outline: none; cursor: pointer; }
+        /* ==========================================================================
+           3. СЕТКА И КАРТОЧКИ ТОВАРОВ (ранги)
+           ========================================================================== */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .card { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 20px; padding: 24px; text-align: center; cursor: pointer; position: relative; }
+        body.light-theme .card { background: rgba(0, 0, 0, 0.01); border-color: rgba(0, 0, 0, 0.03); }
+        .card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.02); border-color: rgba(255,255,255,0.08); }
+        .card:active { transform: scale(0.94) translateY(0); }
+        .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; background: rgba(255, 255, 255, 0.02); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .card-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .card-price { font-size: 22px; font-weight: 800; margin-bottom: 15px; }
+        .perks { text-align: left; list-style: none; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; font-size: 13px; color: var(--text-secondary); }
+        body.light-theme .perks { border-top-color: rgba(0,0,0,0.05); }
+        .perks li { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .c-champ { --col: var(--clr-champ); } .c-titan { --col: var(--clr-titan); } .c-immortal { --col: var(--clr-immortal); } .c-divine { --col: var(--clr-divine); } .c-heroic { --col: var(--clr-heroic); } .c-epic { --col: var(--clr-epic); } .c-mythic { --col: var(--clr-mythic); } .c-legend { --col: var(--clr-legend); } .c-youtuber { --col: var(--clr-youtuber); }
+        .card-title, .card-price, .perks li::before, .card-icon { color: var(--col); }
+        .card-icon { border-color: var(--col); } .perks li::before { content: "✦"; }
+        .card.active { border-color: var(--col); background: rgba(255, 255, 255, 0.03); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 15px var(--col); }
+        .apply-inline-btn { margin-top: 15px; width: 100%; padding: 10px; background: #ff0000; color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
+        /* ==========================================================================
+           4. ФОРМЫ, ПОЛЯ ВВОДА И КНОПКА ОПЛАТЫ
+           ========================================================================== */
+        .checkout-box { max-width: 450px; margin: 0 auto; border-top: 1px solid var(--border); padding-top: 30px; text-align: center; }
+        input, select, textarea { width: 100%; padding: 16px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 14px; color: var(--text); font-size: 15px; font-weight: 600; outline: none; margin-bottom: 20px; }
+        input[type="text"] { text-align: center; }
+        .pay-btn { width: 100%; padding: 16px; background: var(--btn-bg); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px var(--btn-shadow); }
+        .pay-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px var(--btn-shadow); }
+        .pay-btn:active { transform: scale(0.97); }
+        .pay-btn:disabled { background: #111827; color: #4b5563; cursor: not-allowed; box-shadow: none; transform: none; }
+        /* ==========================================================================
+           5. МОДАЛЬНЫЕ ОКНА (оферта + заявка YouTuber)
+           ========================================================================== */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 500px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; }
+        .modal-content h2 { margin-bottom: 10px; font-weight: 800; font-size: 22px; text-align: center; }
+        .modal-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+        .close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; }
+        #legalModal { z-index: 9999; display: none; }
+        #legalModal .modal-content { max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; }
+        .legal-text-box { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; height: 250px; overflow-y: auto; font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; text-align: left; padding: 15px; }
+        .legal-text-box h4 { color: var(--text); margin: 10px 0 5px 0; font-size: 13px; }
+    </style>
+</head><body class="locked">
+    <div class="modal-overlay" id="legalModal" style="display: flex;">
+        <div class="modal-content">
+            <h2>Публичная оферта и дисклеймер</h2>
+            <p class="modal-desc" style="text-align: center;">Внимание! Данный документ полностью исключает ответственность администрации. Прочтите перед активацией.</p>
+            <div class="legal-text-box">
+                <h4>1. Термины и определения</h4>
+                <p>1.1. Проект — игровой сервер Danlorserver, его сайт, администрация и сопутствующие сервисы.<br>
+                1.2. Пользователь — любое физическое лицо, добровольно посещающее Проект или использующее его функции.<br>
+                1.3. Донат (Пожертвование) — полностью безвозмездный, добровольный перевод денежных средств со стороны Пользователя в пользу руководства Проекта.</p>
+
+                <h4>2. Статус и целевое назначение средств</h4>
+                <p>2.1. Все транзакции, совершаемые через данный интерфейс, являются формой дарения и добровольного финансирования.<br>
+                2.2. Средства направляются на покрытие расходов по содержанию инфраструктуры, оплату хостинга, защиту от DDoS-атак, а также на <strong>компенсацию личных материальных, временных и интеллектуальных затрат Владельца Проекта</strong>, связанных с разработкой и поддержкой игрового мира.<br>
+                2.3. Пользователь осознает и соглашается, что Администрация вправе расходовать полученные безвозмездные средства по своему личному усмотрению для обеспечения своей жизнедеятельности и развития Проекта, без обязательств предоставления финансовой или налоговой отчетности перед Пользователем.</p>
+
+                <h4>3. Полный отказ от ответственности и гарантий (Disclaimer)</h4>
+                <p>3.1. Игровой процесс, привилегии, виртуальные предметы и доступ к Проекту предоставляются по принципу <strong>«AS IS» («КАК ЕСТЬ»)</strong>. Администрация не гарантирует абсолютную стабильность, отсутствие программных ошибок, багов или аптайм сервера 100%.<br>
+                3.2. Администрация НЕ несет ответственности за:<br>
+                - Потерю внутриигрового имущества, рангов или баланса в результате технических сбоев, вайпов, перезагрузок или хакерских атак;<br>
+                - Действия компании Mojang Synergies AB (или Microsoft), включая возможные блокировки Проекта, изменения в EULA или прекращение поддержки игры;<br>
+                - Проблемы со стороны интернет-провайдеров Пользователя, падение FPS, несовместимость ПО или поломку оборудования Пользователя;<br>
+                - Моральный вред, психологические травмы или любые другие последствия, возникшие в ходе коммуникации Пользователя с другими игроками в текстовом или голосовом чате.<br>
+                3.3. Любое действие Пользователя на сервере выполняется им на собственный страх и риск.</p>
+
+                <h4>4. Регламент предоставления благодарственных бонусов</h4>
+                <p>4.1. Виртуальные ранги (Champ, Titan, Immortal и др.) являются исключительно нематериальной формой благодарности Проекта за совершенное пожертвование.<br>
+                4.2. Бонусы не имеют эквивалента в реальной валюте, не подлежат обмену на реальные деньги, не могут быть переданы третьим лицам вне рамок Проекта.<br>
+                4.3. Срок действия предоставленных бонусов ограничен временем существования самого Проекта. В случае закрытия Проекта все бонусы аннулируются без компенсаций.</p>
+
+                <h4>5. Строжайший запрет возвратов (No Refund Policy)</h4>
+                <p>5.1. Поскольку перевод является добровольным актом дарения, **возврат денежных средств не производится ни при каких условиях**.<br>
+                5.2. Попытка принудительного отзыва платежа через банк или платежную систему (чарджбэк) расценивается как мошенничество и влечет за собой немедленную пожизненную блокировку всех аккаунтов Пользователя на Проекте по IP и CID с передачей данных в черные списки платежных шлюзов.</p>
+
+                <h4>6. Модерация и право на одностороннее расторжение</h4>
+                <p>6.1. Получение виртуального статуса не освобождает Пользователя от соблюдения внутренних правил Danlorserver.<br>
+                6.2. В случае фиксации нарушений (использование читов, деструктивное поведение, оскорбления администрации) Владелец имеет полное право заблокировать Пользователя без предварительного уведомления и без сохранения или компенсации ранее внесенных пожертвований.</p>
+
+                <h4>7. Согласие с офертой</h4>
+                <p>7.1. Нажатие кнопки «Я согласен» является полным, безоговорочным и осознанным принятием (акцептом) условий данного соглашения.<br>
+                7.2. Если Пользователь не согласен хотя бы с одним пунктом настоящего документа, он обязан немедленно покинуть данный веб-сайт и прекратить любые подключения к серверу.</p>
+            </div>
+            <button class="pay-btn" onclick="acceptAgreement()">Я согласен с условиями, открыть сайт</button>
+        </div>
+    </div>
+
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Тёмная</button>
+    <div class="shop-shell">
+        <header>
+            <h1>Danlorserver</h1>
+            <div class="currency-panel">
+                <label for="currencySelect">Локация оплаты и валюта</label>
+                <select id="currencySelect" class="currency-select" onchange="changeCurrency()">
+                    <option value="RUB" data-symbol="₽" data-rate="1">Россия (RUB — ₽)</option>
+                    <option value="UAH" data-symbol="₴" data-rate="0.43">Украина (UAH — ₴)</option>
+                    <option value="KZT" data-symbol="₸" data-rate="5.10">Казахстан (KZT — ₸)</option>
+                    <option value="USD" data-symbol="$" data-rate="0.011">США (USD — $)</option>
+                    <option value="EUR" data-symbol="€" data-rate="0.010">Евросоюз (EUR — €)</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="products-grid">
+            <div class="card c-champ" data-base-price="35" data-tebex-id="7530548" onclick="selectRank(this, 'Champ', 35)">
+                <div class="card-icon">⚔️</div><div class="card-title">CHAMP</div><div class="card-price" id="price-Champ">35 ₽</div>
+                <ul class="perks"><li>Префикс Champ в табе и чате</li><li>Доступ к стартовому /kit champ</li><li>Вход на заполненный сервер</li></ul>
+            </div>
+            <div class="card c-titan" data-base-price="69" data-tebex-id="7530664" onclick="selectRank(this, 'Titan', 69)">
+                <div class="card-icon">🛡️</div><div class="card-title">TITAN</div><div class="card-price" id="price-Titan">69 ₽</div>
+                <ul class="perks"><li>Префикс Titan в списке</li><li>Доступ к полету /fly</li><li>Создание 3 точек дома</li></ul>
+            </div>
+            <div class="card c-immortal" data-base-price="120" data-tebex-id="7530668" onclick="selectRank(this, 'Immortal', 120)">
+                <div class="card-icon">🔮</div><div class="card-title">IMMORTAL</div><div class="card-price" id="price-Immortal">120 ₽</div>
+                <ul class="perks"><li>Префикс Immortal</li><li>Лечение персонажа командой /heal</li><li>Сохранение опыта после гибели</li></ul>
+            </div>
+            <div class="card c-divine" data-base-price="185" data-tebex-id="7530686" onclick="selectRank(this, 'Divine', 185)">
+                <div class="card-icon">👑</div><div class="card-title">DIVINE</div><div class="card-price" id="price-Divine">185 ₽</div>
+                <ul class="perks"><li>Префикс Divine</li><li>Утоление голода /feed</li><li>Уникальный набор /kit divine</li></ul>
+            </div>
+            <div class="card c-heroic" data-base-price="250" data-tebex-id="7530723" onclick="selectRank(this, 'Heroic', 250)">
+                <div class="card-icon">⚡</div><div class="card-title">HEROIC</div><div class="card-price" id="price-Heroic">250 ₽</div>
+                <ul class="perks"><li>Цветной префикс Heroic</li><li>Виртуальный верстак /bench</li><li>Очистка предметов /clear</li></ul>
+            </div>
+            <div class="card c-epic" data-base-price="340" data-tebex-id="7530728" onclick="selectRank(this, 'Epic', 340)">
+                <div class="card-icon">✨</div><div class="card-title">EPIC</div><div class="card-price" id="price-Epic">340 ₽</div>
+                <ul class="perks"><li>Анимированный префикс в чате</li><li>Цветной формат сообщений</li><li>Просмотр инвентарей /invsee</li></ul>
+            </div>
+            <div class="card c-mythic" data-base-price="490" data-tebex-id="7530734" onclick="selectRank(this, 'Mythic', 490)">
+                <div class="card-icon">🔥</div><div class="card-title">MYTHIC</div><div class="card-price" id="price-Mythic">490 ₽</div>
+                <ul class="perks"><li>Высший статус из config файлов</li><li>Доступ к командам модерации</li><li>Абсолютный иммунитет к кикам</li></ul>
+            </div>
+            <div class="card c-legend" data-base-price="650" data-tebex-id="7530743" onclick="selectRank(this, 'Legend', 650)">
+                <div class="card-icon">⭐</div><div class="card-title">LEGEND</div><div class="card-price" id="price-Legend">650 ₽</div>
+                <ul class="perks"><li>Золотой префикс Legend</li><li>Гиперкрутые уникальные возможности</li><li>Самый престижный набор /kit legend</li></ul>
+            </div>
+            <div class="card c-youtuber" style="cursor: default;">
+                <div class="card-icon">📹</div><div class="card-title">YOUTUBER</div><div class="card-price" style="font-size: 16px; color: var(--text-secondary);">Бесплатно</div>
+                <ul class="perks"><li>Особый статус для медиа-лиц</li><li>Приток новых игроков</li><li>Выдается за контент о сервере</li></ul>
+                <button class="apply-inline-btn" onclick="openYoutubeModal()">Подать заявку</button>
+            </div>
+        </div>
+
+        <div class="checkout-box">
+            <input type="text" id="username" placeholder="Введите ваш игровой ник" autocomplete="off">
+            <button class="pay-btn" id="payBtn" onclick="checkout()" disabled>Выберите привилегию</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="ytModal">
+        <div class="modal-content" style="text-align: left;">
+            <button class="close-modal" onclick="closeModal('ytModal')">×</button>
+            <h2>Заявка на YOUTUBER</h2>
+            <p class="modal-desc" style="text-align: center;">Разрешены платформы: <strong>YouTube, TikTok, Twitch, Telegram</strong>.</p>
+            <form id="ytForm" onsubmit="submitYoutubeApplication(event)">
+                <input type="text" id="yt_nick" placeholder="Игровой никнейм" required style="text-align: left;">
+                <select id="yt_platform" required>
+                    <option value="youtube">YouTube</option><option value="tiktok">TikTok</option><option value="twitch">Twitch</option><option value="telegram">Telegram</option>
+                </select>
+                <input type="url" id="yt_link" placeholder="Ссылка на профиль (https://...)" required style="text-align: left;">
+                <textarea id="yt_addon" placeholder="Количество подписчиков, статистика..." rows="3"></textarea>
+                <button type="submit" class="pay-btn" style="background: #ff0000; box-shadow: 0 4px 15px rgba(255,0,0,0.3);">Отправить анкету</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedProduct = null;
+        const allowedDomains = { 'youtube': ['youtube.com', 'youtu.be'], 'tiktok': ['tiktok.com'], 'twitch': ['twitch.tv'], 'telegram': ['t.me', 'telegram.me'] };
+
+        document.addEventListener("DOMContentLoaded", function() {
+            if (localStorage.getItem('danlor_rules_accepted') === 'true') {
+                document.body.classList.remove('locked');
+                document.getElementById('legalModal').style.display = 'none';
+            } else {
+                document.body.classList.add('locked');
+                document.getElementById('legalModal').style.display = 'flex';
+            }
+        });
+
+        function acceptAgreement() {
+            localStorage.setItem('danlor_rules_accepted', 'true');
+            document.body.classList.remove('locked');
+            document.getElementById('legalModal').style.display = 'none';
+        }
+
+        function formatValue(value, currencyCode) { 
+            return ['USD', 'EUR', 'UAH'].includes(currencyCode) ? value.toFixed(2) : Math.round(value).toString(); 
+        }
+
+        function selectRank(element, name, basePrice) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            const tebexId = element.getAttribute('data-tebex-id');
+            selectedProduct = { name, basePrice, tebexId };
+            updateButtonText();
+        }
+
+        function changeCurrency() {
+            const select = document.getElementById('currencySelect');
+            const option = select.options[select.selectedIndex];
+            const rate = parseFloat(option.getAttribute('data-rate'));
+            const symbol = option.getAttribute('data-symbol');
+            const code = select.value;
+            document.querySelectorAll('.card').forEach(card => {
+                const basePrice = card.getAttribute('data-base-price');
+                if(basePrice) {
+                    const converted = parseFloat(basePrice) * rate;
+                    card.querySelector('.card-price').innerText = `${formatValue(converted, code)} ${symbol}`;
+                }
+            });
+            if (selectedProduct) updateButtonText();
+        }
+
+        function updateButtonText() {
+            const select = document.getElementById('currencySelect');
+            const option = select.options[select.selectedIndex];
+            const rate = parseFloat(option.getAttribute('data-rate'));
+            const symbol = option.getAttribute('data-symbol');
+            const code = select.value;
+            const converted = selectedProduct.basePrice * rate;
+            const btn = document.getElementById('payBtn');
+            btn.removeAttribute('disabled');
+            btn.innerText = `Купить ${selectedProduct.name.toUpperCase()} за ${formatValue(converted, code)} ${symbol}`;
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('light-theme');
+            document.getElementById('themeBtn').innerHTML = body.classList.contains('light-theme') ? "☀️ Светлая" : "🌙 Тёмная";
+        }
+
+        function openYoutubeModal() {
+            document.getElementById('ytModal').style.display = 'flex';
+            const mainNick = document.getElementById('username').value.trim();
+            if(mainNick) document.getElementById('yt_nick').value = mainNick;
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        async function submitYoutubeApplication(event) {
+            event.preventDefault();
+            const nick = document.getElementById('yt_nick').value.trim();
+            const platform = document.getElementById('yt_platform').value;
+            const link = document.getElementById('yt_link').value.trim();
+            const addon = document.getElementById('yt_addon').value.trim();
+
+            if (!allowedDomains[platform].some(domain => link.toLowerCase().includes(domain))) {
+                alert("Ошибка! Неверная ссылка для выбранной платформы.");
+                return;
+            }
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Отправка...";
+
+            const appData = {
+                nick: nick,
+                platform: platform.toUpperCase(),
+                link: link,
+                addon: addon || "Нет",
+                date: new Date().toLocaleString(),
+                status: "⏳ Ожидание"
+            };
+
+            try {
+                const response = await fetch('https://sheetdb.io/api/v1/cmv370tievw5r', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ data: [appData] })
+                });
+
+                if (response.ok) {
+                    alert("Успешно! Анкета отправлена.");
+                    document.getElementById('ytForm').reset();
+                    closeModal('ytModal');
+                } else {
+                    alert("Ошибка сервера SheetDB при сохранении. Попробуйте позже.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Ошибка сети. Проверьте интернет-соединение.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Отправить анкету";
+            }
+        }
+
+        function checkout() {
+            const nick = document.getElementById('username').value.trim();
+            if (!nick || !selectedProduct) {
+                alert("Укажите ник и выберите привилегию!");
+                return;
+            }
+            const tebexId = selectedProduct.tebexId;
+            if (!tebexId || tebexId.startsWith('ID_')) {
+                alert(`Внимание: для пакета "${selectedProduct.name}" не указан реальный ID пакета Tebex (data-tebex-id). Замените плейсхолдер на числовой ID из панели Tebex.`);
+                return;
+            }
+            window.location.href = `https://danlorserver.tebex.io/checkout/packages?basketAdd=${tebexId}&note=${encodeURIComponent(nick)}`;
+        }
+    </script>
+</body>
+</html>
